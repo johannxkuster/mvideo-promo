@@ -28,6 +28,69 @@ function getPartnerAppLink() {
   return 'https://www.onetwotrip.com';
 }
 
+function normalizePhoneInput(value) {
+  let digits = String(value || '').replace(/\D/g, '');
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.startsWith('8')) {
+    digits = `7${digits.slice(1)}`;
+  }
+
+  if (digits.startsWith('9')) {
+    digits = `7${digits}`;
+  }
+
+  if (!digits.startsWith('7')) {
+    digits = `7${digits}`;
+  }
+
+  digits = digits.slice(0, 11);
+
+  let result = '+7';
+  const rest = digits.slice(1);
+
+  if (rest.length > 0) {
+    result += ` ${rest.slice(0, 3)}`;
+  }
+
+  if (rest.length > 3) {
+    result += ` ${rest.slice(3, 6)}`;
+  }
+
+  if (rest.length > 6) {
+    result += `-${rest.slice(6, 8)}`;
+  }
+
+  if (rest.length > 8) {
+    result += `-${rest.slice(8, 10)}`;
+  }
+
+  return result;
+}
+
+function normalizeAmountInput(value) {
+  let clean = String(value || '')
+    .replace(',', '.')
+    .replace(/[^\d.]/g, '');
+
+  const parts = clean.split('.');
+
+  if (parts.length > 2) {
+    clean = `${parts[0]}.${parts.slice(1).join('')}`;
+  }
+
+  const [rubles, kopecks] = clean.split('.');
+
+  if (kopecks !== undefined) {
+    return `${rubles}.${kopecks.slice(0, 2)}`;
+  }
+
+  return rubles;
+}
+
 function getStatusLabel(status) {
   const labels = {
     accepted: 'На проверке',
@@ -59,8 +122,6 @@ function App() {
     fn: '',
     fd: '',
     fp: '',
-    rulesAccepted: false,
-    personalDataAccepted: false,
   };
 
   const [form, setForm] = useState(emptyForm);
@@ -179,6 +240,13 @@ function App() {
       return;
     }
 
+    const phoneDigits = form.phone.replace(/\D/g, '');
+
+    if (phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
+      setMessage('Укажи корректный номер телефона в формате +7.');
+      return;
+    }
+
     if (!form.receiptAmount) {
       setMessage('Укажи сумму чека.');
       return;
@@ -191,11 +259,6 @@ function App() {
 
     if (!form.fn || !form.fd || !form.fp) {
       setMessage('Укажи ФН, ФД и ФП/ФПД с чека.');
-      return;
-    }
-
-    if (!form.rulesAccepted || !form.personalDataAccepted) {
-      setMessage('Нужно принять правила акции и согласие на обработку персональных данных.');
       return;
     }
 
@@ -390,8 +453,10 @@ function App() {
             Телефон
             <input
               type="tel"
+              inputMode="tel"
+              maxLength="16"
               value={form.phone}
-              onChange={(e) => updateField('phone', e.target.value)}
+              onChange={(e) => updateField('phone', normalizePhoneInput(e.target.value))}
               placeholder="+7 999 123-45-67"
             />
           </label>
@@ -400,12 +465,11 @@ function App() {
             <label>
               Сумма чека, ₽
               <input
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 value={form.receiptAmount}
-                onChange={(e) => updateField('receiptAmount', e.target.value)}
-                placeholder="2000"
+                onChange={(e) => updateField('receiptAmount', normalizeAmountInput(e.target.value))}
+                placeholder="2000.00"
               />
             </label>
 
@@ -463,34 +527,6 @@ function App() {
               onChange={(e) => updateField('fp', e.target.value)}
               placeholder="Например: 1234567890"
             />
-          </label>
-
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={form.rulesAccepted}
-              onChange={(e) => updateField('rulesAccepted', e.target.checked)}
-            />
-            <span>
-              Я принимаю{' '}
-              <a href="https://disk.yandex.ru/i/pravila-akcii-placeholder" target="_blank" rel="noreferrer">
-                Правила акции
-              </a>
-            </span>
-          </label>
-
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={form.personalDataAccepted}
-              onChange={(e) => updateField('personalDataAccepted', e.target.checked)}
-            />
-            <span>
-              Я даю{' '}
-              <a href="https://disk.yandex.ru/i/personal-data-placeholder" target="_blank" rel="noreferrer">
-                согласие на обработку персональных данных
-              </a>
-            </span>
           </label>
 
           <button type="submit">Отправить чек</button>

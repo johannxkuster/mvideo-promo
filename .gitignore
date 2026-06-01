@@ -1,0 +1,8 @@
+node_modules
+.env
+.DS_Store
+backend/node_modules
+backend/.env
+backend/submissions.json
+webapp/node_modules
+webapp/dist

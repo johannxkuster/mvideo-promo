@@ -4,49 +4,59 @@ import { Telegraf, Markup } from 'telegraf';
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const promoText = `
-Привет!
+Приветствуем на борту «Скидколёта» от М.Видео. Здесь можно участвовать в розыгрыше билета в лето!
 
-Участвуй в розыгрыше путешествия на Мальдивские острова от М.Видео.
+<b>Правила простые:</b>
+1. Совершите покупку в любом магазине М.Видео на сумму от 2000₽ (две тысячи рублей) в период распродажи White Friday (с 2 июня 2026 по 29 июня 2026)
+2. Сохраните кассовый чек.
+3. Нажмите кнопку «Участвовать» и заполните данные чека.
+4. Скачайте приложение партнёра <a href="https://www.onetwotrip.com/ru/loyalty/app/">OneTwoTrip</a>, зарегистрируйтесь с использованием номера телефона, который указали при регистрации чека, или авторизуйтесь в нём.
+5. Ждите результатов розыгрыша в <a href="https://t.me/mvideoandeldorado">канале М.Видео</a>.
 
-Правила простые:
+<b>Приз — сертификат на покупку авиабилетов в сервисе OneTwoTrip на общую сумму 300 000 рублей!</b>
 
-1. Соверши покупку в магазине М.Видео на сумму от 2 000 ₽ в период с 2 июня по 29 июня 2026 года.
-2. Сохрани кассовый чек.
-3. Нажми кнопку «Участвовать» и заполни данные чека.
-4. Скачай приложение <a href="https://www.onetwotrip.com">ПАРТНЕРА</a>.
-5. Жди результатов розыгрыша.
-
-Главный приз — перелёт на Мальдивские острова и обратно.
-
-Чем больше чеков ты зарегистрируешь, тем выше шанс на победу.
-
-К участию принимаются только чеки:
+<b>К участию принимаются только чеки:</b>
 — на сумму от 2 000 ₽;
 — с датой покупки с 02.06.2026 по 29.06.2026;
 — из магазинов М.Видео;
 — ранее не зарегистрированные в акции.
 
-Продолжая, ты принимаешь <a href="https://disk.yandex.ru/i/pravila-akcii-placeholder">Правила акции</a> и даёшь <a href="https://disk.yandex.ru/i/personal-data-placeholder">согласие на обработку персональных данных</a>.
+Нажимая кнопку «Участвовать», вы принимаете <a href="https://disk.360.yandex.ru/i/1H4l-sNCUrOKFA">Правила акции</a> и даёте <a href="https://disk.360.yandex.ru/i/cprmrqCfXidNZg">Согласие на обработку персональных данных</a>.
 `;
+
+const webAppButton = Markup.inlineKeyboard([
+  Markup.button.webApp('Открыть', process.env.WEBAPP_URL),
+]);
 
 bot.start(async (ctx) => {
   await ctx.reply(
-  promoText,
-  {
-    parse_mode: 'HTML',
-    disable_web_page_preview: true,
-    link_preview_options: {
-      is_disabled: true,
-    },
-    ...Markup.inlineKeyboard([
-      Markup.button.webApp('Участвовать', process.env.WEBAPP_URL),
-    ]),
-  }
-);
+    promoText,
+    {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      link_preview_options: {
+        is_disabled: true,
+      },
+      ...webAppButton,
+    }
+  );
+});
+
+bot.command('open', async (ctx) => {
+  await ctx.reply(
+    'Откройте мини-приложение, чтобы зарегистрировать чек.',
+    {
+      disable_web_page_preview: true,
+      link_preview_options: {
+        is_disabled: true,
+      },
+      ...webAppButton,
+    }
+  );
 });
 
 bot.command('help', async (ctx) => {
-  await ctx.reply('Нажми /start, чтобы открыть участие в розыгрыше.');
+  await ctx.reply('Нажмите /start, чтобы открыть участие в розыгрыше.');
 });
 
 bot.catch((err) => {

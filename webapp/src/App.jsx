@@ -15,17 +15,7 @@ function getTelegramUser() {
 }
 
 function getPartnerAppLink() {
-  const userAgent = navigator.userAgent || '';
-
-  if (/android/i.test(userAgent)) {
-    return 'https://play.google.com/store/apps/details?id=partner.placeholder';
-  }
-
-  if (/iphone|ipad|ipod/i.test(userAgent)) {
-    return 'https://apps.apple.com/app/partner-placeholder';
-  }
-
-  return 'https://www.onetwotrip.com';
+  return 'https://www.onetwotrip.com/ru/loyalty/app/';
 }
 
 function normalizePhoneInput(value) {
@@ -91,6 +81,24 @@ function normalizeAmountInput(value) {
   return rubles;
 }
 
+function onlyDigits(value, maxLength) {
+  return String(value || '').replace(/\D/g, '').slice(0, maxLength);
+}
+
+function formatDateForView(value) {
+  if (!value) {
+    return '—';
+  }
+
+  const parts = String(value).split('-');
+
+  if (parts.length !== 3) {
+    return value;
+  }
+
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
 function getStatusLabel(status) {
   const labels = {
     accepted: 'На проверке',
@@ -118,7 +126,6 @@ function App() {
     phone: '',
     receiptAmount: '',
     receiptDate: '',
-    receiptTime: '',
     fn: '',
     fd: '',
     fp: '',
@@ -127,6 +134,7 @@ function App() {
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState('');
   const [screen, setScreen] = useState('form');
+  const [invalidFields, setInvalidFields] = useState({});
 
   const [myChecks, setMyChecks] = useState([]);
   const [myStats, setMyStats] = useState({
@@ -138,6 +146,11 @@ function App() {
   const [checksMessage, setChecksMessage] = useState('');
 
   function updateField(name, value) {
+    setInvalidFields((prev) => ({
+      ...prev,
+      [name]: false,
+    }));
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -147,6 +160,7 @@ function App() {
   function resetForm() {
     setForm(emptyForm);
     setMessage('');
+    setInvalidFields({});
     setChecksMessage('');
     setScreen('form');
   }
@@ -235,30 +249,49 @@ function App() {
 
     setMessage('');
 
-    if (!form.firstName || !form.lastName || !form.phone) {
-      setMessage('Заполни имя, фамилию и телефон.');
-      return;
+    const nextInvalidFields = {};
+
+    if (!form.firstName) {
+      nextInvalidFields.firstName = true;
+    }
+
+    if (!form.lastName) {
+      nextInvalidFields.lastName = true;
+    }
+
+    if (!form.phone) {
+      nextInvalidFields.phone = true;
     }
 
     const phoneDigits = form.phone.replace(/\D/g, '');
 
-    if (phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
-      setMessage('Укажи корректный номер телефона в формате +7.');
-      return;
+    if (form.phone && (phoneDigits.length !== 11 || !phoneDigits.startsWith('7'))) {
+      nextInvalidFields.phone = true;
     }
 
     if (!form.receiptAmount) {
-      setMessage('Укажи сумму чека.');
-      return;
+      nextInvalidFields.receiptAmount = true;
     }
 
     if (!form.receiptDate) {
-      setMessage('Укажи дату покупки.');
-      return;
+      nextInvalidFields.receiptDate = true;
     }
 
-    if (!form.fn || !form.fd || !form.fp) {
-      setMessage('Укажи ФН, ФД и ФП/ФПД с чека.');
+    if (form.fn.length !== 16) {
+      nextInvalidFields.fn = true;
+    }
+
+    if (form.fd.length < 1 || form.fd.length > 10) {
+      nextInvalidFields.fd = true;
+    }
+
+    if (form.fp.length < 1 || form.fp.length > 10) {
+      nextInvalidFields.fp = true;
+    }
+
+    if (Object.keys(nextInvalidFields).length > 0) {
+      setInvalidFields(nextInvalidFields);
+      setMessage('Заполнены не все поля.');
       return;
     }
 
@@ -272,6 +305,7 @@ function App() {
         },
         body: JSON.stringify({
           ...form,
+          receiptTime: '',
           telegramUser,
         }),
       });
@@ -310,7 +344,7 @@ function App() {
           )}
 
           <div className="stats-box">
-            <div className="stats-title">Статусы</div>
+            <div className="stats-title">Ваши чеки</div>
             <div>✅ Проверено и принято: {myStats.accepted}</div>
             <div>⏳ На проверке: {myStats.pending}</div>
             <div>❌ Отклонено: {myStats.rejected}</div>
@@ -327,7 +361,7 @@ function App() {
                   Чек ФД: {check.fd || '—'}
                 </div>
                 <div>Сумма: {check.receiptAmount || '—'} ₽</div>
-                <div>Дата: {check.receiptDate || '—'}</div>
+                <div>Дата: {formatDateForView(check.receiptDate)}</div>
                 <div>Статус: {getStatusLabel(check.status)}</div>
                 {check.statusReason && (
                   <div className="check-card-reason">
@@ -361,28 +395,8 @@ function App() {
           <h1>Чек отправлен</h1>
 
           <p className="intro">
-            Спасибо! Чек принят на предварительную проверку.
+            Спасибо! Чек принят на проверку.
           </p>
-
-          <div className="success-box">
-            Мы проверим данные чека и сообщим результат в этом боте.
-          </div>
-
-          <div className="channel-box">
-            Чтобы участвовать в розыгрыше, нужно быть подписанным на Telegram-канал М.Видео.
-            <br />
-            <a href="https://t.me/mvideoandeldorado" target="_blank" rel="noreferrer">
-              @mvideoandeldorado
-            </a>
-          </div>
-
-          <div className="channel-box">
-            Также скачай приложение{' '}
-            <a href={partnerAppLink} target="_blank" rel="noreferrer">
-              ПАРТНЕРА
-            </a>
-            , чтобы выполнить условия акции.
-          </div>
 
           <div className="stats-box">
             <div className="stats-title">Ваши чеки</div>
@@ -398,13 +412,20 @@ function App() {
             )}
           </div>
 
+          <div className="channel-box">
+            <a href={partnerAppLink} target="_blank" rel="noreferrer">
+              Скачайте
+            </a>{' '}
+            приложение OneTwoTrip, чтобы выполнить условия акции, и зарегистрируйтесь в нём с номером телефона, который был указан при регистрации чека. Или авторизуйтесь в нём.
+          </div>
+
           <div className="actions">
             <button type="button" className="secondary-button" onClick={resetForm}>
               Зарегистрировать ещё один чек
             </button>
 
             <button type="button" onClick={closeWebApp}>
-              Продолжить
+              Завершить регистрацию
             </button>
           </div>
         </section>
@@ -415,11 +436,10 @@ function App() {
   return (
     <main className="page">
       <section className="card">
-        <h1>Загрузи чек</h1>
+        <h1>Загрузите чек</h1>
 
         <p className="intro">
-          Соверши покупку в М.Видео на сумму от 2 000 ₽ в период White Friday
-          с 02.06.2026 по 29.06.2026 и зарегистрируй чек для участия в розыгрыше.
+          Совершите покупку в М.Видео на сумму от 2000₽ (двух тысяч рублей) в период распродажи White Friday с 02.06.2026 по 29.06.2026 и зарегистрируйте свой чек для участия в розыгрыше.
         </p>
 
         <button type="button" className="bubble-button" onClick={openMyChecks}>
@@ -428,7 +448,7 @@ function App() {
 
         <form onSubmit={handleSubmit} className="form">
           <div className="row">
-            <label>
+            <label className={invalidFields.firstName ? 'invalid-label' : ''}>
               Имя
               <input
                 type="text"
@@ -438,7 +458,7 @@ function App() {
               />
             </label>
 
-            <label>
+            <label className={invalidFields.lastName ? 'invalid-label' : ''}>
               Фамилия
               <input
                 type="text"
@@ -449,7 +469,7 @@ function App() {
             </label>
           </div>
 
-          <label>
+          <label className={invalidFields.phone ? 'invalid-label' : ''}>
             Телефон
             <input
               type="tel"
@@ -462,7 +482,7 @@ function App() {
           </label>
 
           <div className="row">
-            <label>
+            <label className={invalidFields.receiptAmount ? 'invalid-label' : ''}>
               Сумма чека, ₽
               <input
                 type="text"
@@ -473,7 +493,7 @@ function App() {
               />
             </label>
 
-            <label>
+            <label className={invalidFields.receiptDate ? 'invalid-label' : ''}>
               Дата покупки
               <input
                 type="date"
@@ -483,49 +503,40 @@ function App() {
             </label>
           </div>
 
-          <label>
-            Время покупки
-            <input
-              type="time"
-              value={form.receiptTime}
-              onChange={(e) => updateField('receiptTime', e.target.value)}
-            />
-          </label>
-
           <div className="hint">
-            ФН, ФД и ФП/ФПД обычно находятся в нижней части чека рядом с QR-кодом.
+            ФН, ФД и ФП/ФПД обычно находятся в нижней части чека.
           </div>
 
-          <label>
+          <label className={invalidFields.fn ? 'invalid-label' : ''}>
             ФН
             <input
               type="text"
               inputMode="numeric"
               value={form.fn}
-              onChange={(e) => updateField('fn', e.target.value)}
-              placeholder="Например: 9999078900000000"
+              onChange={(e) => updateField('fn', onlyDigits(e.target.value, 16))}
+              placeholder="16 цифр"
             />
           </label>
 
-          <label>
+          <label className={invalidFields.fd ? 'invalid-label' : ''}>
             ФД
             <input
               type="text"
               inputMode="numeric"
               value={form.fd}
-              onChange={(e) => updateField('fd', e.target.value)}
-              placeholder="Например: 12345"
+              onChange={(e) => updateField('fd', onlyDigits(e.target.value, 10))}
+              placeholder="До 10 цифр"
             />
           </label>
 
-          <label>
+          <label className={invalidFields.fp ? 'invalid-label' : ''}>
             ФП / ФПД
             <input
               type="text"
               inputMode="numeric"
               value={form.fp}
-              onChange={(e) => updateField('fp', e.target.value)}
-              placeholder="Например: 1234567890"
+              onChange={(e) => updateField('fp', onlyDigits(e.target.value, 10))}
+              placeholder="До 10 цифр"
             />
           </label>
 

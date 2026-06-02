@@ -288,3 +288,51 @@ input[type="time"] {
 .row label {
   min-width: 0;
 }
+
+.invalid-label {
+  color: #e30613;
+}
+
+.invalid-label input {
+  border-color: #e30613;
+  background: #fff5f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.form,
+label,
+input,
+select,
+textarea {
+  text-align: left;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+input[type="date"],
+input[type="time"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+
+.row {
+  width: 100%;
+}
+
+.row label {
+  min-width: 0;
+}

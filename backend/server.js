@@ -331,16 +331,16 @@ fastify.post('/api/finish', async (request, reply) => {
   const telegramUserId = body.telegramUser?.id;
 
   await sendTelegramMessage(
-    telegramUserId,
-    [
-      'Чек отправлен на проверку ✅',
-      '',
-      'Следите за анонсами в нашем Telegram-канале:',
-      'https://t.me/mvideoandeldorado',
-      '',
-      'Покупайте ещё и регистрируйте чеки — так вы повысите шансы на победу.',
-    ].join('\n')
-  );
+  telegramUserId,
+  [
+    'Чек отправлен на проверку ✅',
+    '',
+    'Следите за анонсами в нашем Telegram-канале:',
+    '@mvideoandeldorado',
+    '',
+    'Покупайте ещё и регистрируйте чеки — так вы повысите шансы на победу.',
+  ].join('\n')
+);
 
   return {
     ok: true,

@@ -9,7 +9,7 @@ const promoText = `
 <b>Правила простые:</b>
 1. Совершите покупку в любом магазине М.Видео на сумму от 2000₽ (две тысячи рублей) в период распродажи White Friday (с 2 июня 2026 по 29 июня 2026)
 2. Сохраните кассовый чек.
-3. Нажмите кнопку «Участвовать» и заполните данные чека.
+3. Нажмите кнопку «Зарегистрировать чек» и заполните данные чека.
 4. Скачайте приложение партнёра <a href="https://www.onetwotrip.com/ru/loyalty/app/">OneTwoTrip</a>, зарегистрируйтесь с использованием номера телефона, который указали при регистрации чека, или авторизуйтесь в нём.
 5. Ждите результатов розыгрыша в <a href="https://t.me/mvideoandeldorado">канале М.Видео</a>.
 
@@ -21,11 +21,11 @@ const promoText = `
 — из магазинов М.Видео;
 — ранее не зарегистрированные в акции.
 
-Нажимая кнопку «Участвовать», вы принимаете <a href="https://disk.360.yandex.ru/i/1H4l-sNCUrOKFA">Правила акции</a> и даёте <a href="https://disk.360.yandex.ru/i/cprmrqCfXidNZg">Согласие на обработку персональных данных</a>.
+Нажимая кнопку «Зарегистрировать чек», вы принимаете <a href="https://disk.360.yandex.ru/i/1H4l-sNCUrOKFA">Правила акции</a> и даёте <a href="https://disk.360.yandex.ru/i/cprmrqCfXidNZg">Согласие на обработку персональных данных</a>.
 `;
 
 const webAppButton = Markup.inlineKeyboard([
-  Markup.button.webApp('Открыть', process.env.WEBAPP_URL),
+  Markup.button.webApp('Зарегистрировать чек', process.env.WEBAPP_URL),
 ]);
 
 bot.start(async (ctx) => {

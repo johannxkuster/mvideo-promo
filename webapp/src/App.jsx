@@ -278,16 +278,22 @@ function App() {
     }
 
     if (form.fn.length !== 16) {
-      nextInvalidFields.fn = true;
-    }
 
-    if (form.fd.length < 1 || form.fd.length > 10) {
-      nextInvalidFields.fd = true;
-    }
+  nextInvalidFields.fn = true;
 
-    if (form.fp.length < 1 || form.fp.length > 10) {
-      nextInvalidFields.fp = true;
-    }
+}
+
+if (form.fd.length < 4 || form.fd.length > 10) {
+
+  nextInvalidFields.fd = true;
+
+}
+
+if (form.fp.length < 6 || form.fp.length > 10) {
+
+  nextInvalidFields.fp = true;
+
+}
 
     if (Object.keys(nextInvalidFields).length > 0) {
       setInvalidFields(nextInvalidFields);
@@ -514,7 +520,7 @@ function App() {
               inputMode="numeric"
               value={form.fn}
               onChange={(e) => updateField('fn', onlyDigits(e.target.value, 16))}
-              placeholder="16 цифр"
+              placeholder="Например: 9999078900000000"
             />
           </label>
 
@@ -525,7 +531,7 @@ function App() {
               inputMode="numeric"
               value={form.fd}
               onChange={(e) => updateField('fd', onlyDigits(e.target.value, 10))}
-              placeholder="До 10 цифр"
+              placeholder="Например: 1234512345"
             />
           </label>
 
@@ -536,7 +542,7 @@ function App() {
               inputMode="numeric"
               value={form.fp}
               onChange={(e) => updateField('fp', onlyDigits(e.target.value, 10))}
-              placeholder="До 10 цифр"
+              placeholder="Например: 1234512345"
             />
           </label>
 

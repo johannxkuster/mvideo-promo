@@ -82,7 +82,7 @@ async function sendToGoogleSheets(submission) {
   }
 }
 
-async function sendTelegramMessage(chatId, text) {
+async function sendTelegramMessage(chatId, text, replyMarkup = null) {
   const botToken = process.env.BOT_TOKEN;
 
   if (!botToken) {
@@ -95,21 +95,27 @@ async function sendTelegramMessage(chatId, text) {
     return;
   }
 
+  const body = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true,
+    link_preview_options: {
+      is_disabled: true,
+    },
+  };
+
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
+
   try {
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-  chat_id: chatId,
-  text,
-  parse_mode: 'HTML',
-  disable_web_page_preview: true,
-  link_preview_options: {
-    is_disabled: true,
-  },
-}),
+      body: JSON.stringify(body),
     });
 
     const result = await response.json();
@@ -331,16 +337,28 @@ fastify.post('/api/finish', async (request, reply) => {
   const telegramUserId = body.telegramUser?.id;
 
   await sendTelegramMessage(
-  telegramUserId,
-  [
-    'Чек отправлен на проверку ✅',
-    '',
-    'Следите за анонсами в нашем Telegram-канале:',
-    '@mvideoandeldorado',
-    '',
-    'Покупайте ещё и регистрируйте чеки — так вы повысите шансы на победу.',
-  ].join('\n')
-);
+    telegramUserId,
+    [
+      'Чек отправлен на проверку ✅',
+      '',
+      'Следите за анонсами в нашем Telegram-канале:',
+      '@mvideoandeldorado',
+      '',
+      'Покупайте ещё и регистрируйте чеки — так вы повысите шансы на победу.',
+    ].join('\n'),
+    {
+      inline_keyboard: [
+        [
+          {
+            text: 'Зарегистрировать новый чек',
+            web_app: {
+              url: process.env.WEBAPP_URL,
+            },
+          },
+        ],
+      ],
+    }
+  );
 
   return {
     ok: true,

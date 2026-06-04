@@ -73,19 +73,10 @@ bot.on(['video', 'document', 'animation', 'video_note'], async (ctx) => {
   );
 });
 bot.start(async (ctx) => {
-  const options = {
-    caption: promoText,
-    parse_mode: 'HTML',
-    disable_web_page_preview: true,
-    link_preview_options: {
-      is_disabled: true,
-    },
-    ...webAppButton,
-  };
+  console.log('PROMO_VIDEO_FILE_ID exists:', Boolean(promoVideoFileId));
 
   if (promoVideoFileId) {
-    await ctx.replyWithVideo(promoVideoFileId, options);
-    return;
+    await ctx.replyWithVideo(promoVideoFileId);
   }
 
   await ctx.reply(

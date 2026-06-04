@@ -218,9 +218,9 @@ fastify.post('/api/submissions', async (request, reply) => {
   if (!submission.firstName || !submission.lastName || !submission.phone) {
     submission.status = 'format_error';
     submission.statusReason = 'Не заполнены имя, фамилия или телефон.';
-  } else if (!submission.receiptAmount || submission.receiptAmount < 2000) {
+  } else if (!submission.receiptAmount || submission.receiptAmount < 5000) {
     submission.status = 'amount_too_low';
-    submission.statusReason = 'Сумма чека меньше 2 000 ₽.';
+    submission.statusReason = 'Сумма чека меньше 5000 ₽.';
   } else if (!submission.receiptDate || !isDateInPromoRange(submission.receiptDate)) {
     submission.status = 'date_out_of_range';
     submission.statusReason = 'Дата покупки вне периода акции: 02.06.2026 — 29.06.2026.';
@@ -250,7 +250,7 @@ fastify.post('/api/submissions', async (request, reply) => {
   const messages = {
     accepted: 'Спасибо! Чек принят на предварительную проверку.',
     format_error: submission.statusReason,
-    amount_too_low: 'Сумма чека должна быть от 2 000 ₽.',
+    amount_too_low: 'Сумма чека должна быть от 5000 ₽.',
     date_out_of_range: 'Дата покупки должна быть с 02.06.2026 по 29.06.2026.',
     duplicate: 'Этот чек уже был зарегистрирован.',
     wrong_store: 'Этот чек не подходит для акции: чек не из М.Видео.',

@@ -106,7 +106,7 @@ function getStatusLabel(status) {
     manual_review: 'На ручной проверке',
     fns_valid: 'Проверено и принято',
     duplicate: 'Отклонено: дубль',
-    amount_too_low: 'Отклонено: сумма меньше 2 000 ₽',
+    amount_too_low: 'Отклонено: сумма меньше 5000 ₽',
     date_out_of_range: 'Отклонено: дата вне акции',
     format_error: 'Отклонено: ошибка данных',
     wrong_store: 'Отклонено: чек не из М.Видео',
@@ -445,7 +445,7 @@ if (form.fp.length < 6 || form.fp.length > 10) {
         <h1>Загрузите чек</h1>
 
         <p className="intro">
-          Совершите покупку в М.Видео на сумму от 2000₽ (двух тысяч рублей) в период распродажи White Friday с 02.06.2026 по 29.06.2026 и зарегистрируйте свой чек для участия в розыгрыше.
+          Совершите покупку в М.Видео на сумму от 5000₽ (пяти тысяч рублей) в период распродажи White Friday с 02.06.2026 по 29.06.2026 и зарегистрируйте свой чек для участия в розыгрыше.
         </p>
 
         <button type="button" className="bubble-button" onClick={openMyChecks}>
@@ -495,7 +495,7 @@ if (form.fp.length < 6 || form.fp.length > 10) {
                 inputMode="decimal"
                 value={form.receiptAmount}
                 onChange={(e) => updateField('receiptAmount', normalizeAmountInput(e.target.value))}
-                placeholder="2000.00"
+                placeholder="5000.00"
               />
             </label>
 

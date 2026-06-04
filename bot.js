@@ -28,21 +28,49 @@ const webAppButton = Markup.inlineKeyboard([
   Markup.button.webApp('Зарегистрировать чек', process.env.WEBAPP_URL),
 ]);
 
-bot.on('video', async (ctx) => {
-  const fileId = ctx.message.video.file_id;
+bot.on(['video', 'document', 'animation', 'video_note'], async (ctx) => {
+  let fileId = '';
+  let fileType = '';
 
-  console.log('VIDEO_FILE_ID:', fileId);
+  if (ctx.message.video) {
+    fileId = ctx.message.video.file_id;
+    fileType = 'video';
+  }
+
+  if (ctx.message.document) {
+    fileId = ctx.message.document.file_id;
+    fileType = 'document';
+  }
+
+  if (ctx.message.animation) {
+    fileId = ctx.message.animation.file_id;
+    fileType = 'animation';
+  }
+
+  if (ctx.message.video_note) {
+    fileId = ctx.message.video_note.file_id;
+    fileType = 'video_note';
+  }
+
+  console.log('PROMO_FILE_TYPE:', fileType);
+  console.log('PROMO_FILE_ID:', fileId);
+
+  if (!fileId) {
+    await ctx.reply('Файл получил, но file_id не нашёл. Попробуй отправить видео как обычное видео, не как кружок.');
+    return;
+  }
 
   await ctx.reply(
     [
-      'Видео получил ✅',
+      'Файл получил ✅',
+      '',
+      `Тип: ${fileType}`,
       '',
       'file_id:',
       fileId,
     ].join('\n')
   );
 });
-
 bot.start(async (ctx) => {
   await ctx.reply(
     promoText,

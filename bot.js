@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Telegraf, Markup } from 'telegraf';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+const promoVideoFileId = process.env.PROMO_VIDEO_FILE_ID;
 
 const promoText = `
 Приветствуем на борту «Скидколёта» от М.Видео. Здесь можно участвовать в розыгрыше билета в лето!
@@ -72,6 +73,21 @@ bot.on(['video', 'document', 'animation', 'video_note'], async (ctx) => {
   );
 });
 bot.start(async (ctx) => {
+  const options = {
+    caption: promoText,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true,
+    link_preview_options: {
+      is_disabled: true,
+    },
+    ...webAppButton,
+  };
+
+  if (promoVideoFileId) {
+    await ctx.replyWithVideo(promoVideoFileId, options);
+    return;
+  }
+
   await ctx.reply(
     promoText,
     {

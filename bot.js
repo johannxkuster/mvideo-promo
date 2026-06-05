@@ -22,7 +22,7 @@ const promoText = `
 — из М.Видео;
 — ранее не зарегистрированные в акции.
 
-Нажимая кнопку «Зарегистрировать чек», вы принимаете <a href="https://disk.360.yandex.ru/i/1H4l-sNCUrOKFA">Правила акции</a> и даёте <a href="https://disk.360.yandex.ru/i/cprmrqCfXidNZg">Согласие на обработку персональных данных</a>.
+
 `;
 
 const webAppButton = Markup.inlineKeyboard([

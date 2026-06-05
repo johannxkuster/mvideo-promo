@@ -534,6 +534,17 @@ function App() {
             />
           </label>
 
+          <div className="legal-note">
+            Нажимая кнопку «Отправить чек», вы принимаете{' '}
+            <a href="https://disk.360.yandex.ru/i/1H4l-sNCUrOKFA" target="_blank" rel="noreferrer">
+              Правила акции
+            </a>{' '}
+            и даёте{' '}
+            <a href="https://disk.360.yandex.ru/i/cprmrqCfXidNZg" target="_blank" rel="noreferrer">
+              Согласие на обработку персональных данных
+            </a>.
+          </div>
+
           <button type="submit">Отправить чек</button>
 
           {message && <div className="message">{message}</div>}

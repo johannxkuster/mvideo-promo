@@ -336,3 +336,16 @@ input[type="time"] {
 .row label {
   min-width: 0;
 }
+.legal-note {
+  margin-top: 4px;
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.legal-note a {
+  color: #e30613;
+  font-weight: 800;
+  text-decoration: none;
+}

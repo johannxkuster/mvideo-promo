@@ -15,7 +15,7 @@ function getTelegramUser() {
 }
 
 function getPartnerAppLink() {
-  return 'https://www.onetwotrip.com/ru/loyalty/app/';
+  return 'https://12trip.onelink.me/dGRf/mvideo';
 }
 
 function normalizePhoneInput(value) {
@@ -101,12 +101,12 @@ function formatDateForView(value) {
 
 function getStatusLabel(status) {
   const labels = {
-    accepted: 'На проверке',
-    fns_pending: 'На проверке',
-    manual_review: 'На ручной проверке',
-    fns_valid: 'Проверено и принято',
+    accepted: 'На модерации',
+    fns_pending: 'На модерации',
+    manual_review: 'На ручной модерации',
+    fns_valid: 'Прошёл модерацию',
     duplicate: 'Отклонено: дубль',
-    amount_too_low: 'Отклонено: сумма меньше 5000 ₽',
+    amount_too_low: 'Отклонено: сумма меньше 5 000 ₽',
     date_out_of_range: 'Отклонено: дата вне акции',
     format_error: 'Отклонено: ошибка данных',
     wrong_store: 'Отклонено: чек не из М.Видео',
@@ -138,9 +138,8 @@ function App() {
 
   const [myChecks, setMyChecks] = useState([]);
   const [myStats, setMyStats] = useState({
-    accepted: 0,
-    pending: 0,
-    rejected: 0,
+    moderated: 0,
+    passed: 0,
   });
   const [checksLoading, setChecksLoading] = useState(false);
   const [checksMessage, setChecksMessage] = useState('');
@@ -185,9 +184,8 @@ function App() {
       if (!response.ok || !result.ok) {
         setMyChecks([]);
         setMyStats({
-          accepted: 0,
-          pending: 0,
-          rejected: 0,
+          moderated: 0,
+          passed: 0,
         });
         setChecksMessage(result.message || 'Не удалось загрузить ваши чеки.');
         return;
@@ -195,18 +193,16 @@ function App() {
 
       setMyChecks(result.checks || []);
       setMyStats(result.stats || {
-        accepted: 0,
-        pending: 0,
-        rejected: 0,
+        moderated: 0,
+        passed: 0,
       });
       setChecksMessage('');
     } catch (error) {
       console.error(error);
       setMyChecks([]);
       setMyStats({
-        accepted: 0,
-        pending: 0,
-        rejected: 0,
+        moderated: 0,
+        passed: 0,
       });
       setChecksMessage('Ошибка при загрузке чеков.');
     } finally {
@@ -278,22 +274,16 @@ function App() {
     }
 
     if (form.fn.length !== 16) {
+      nextInvalidFields.fn = true;
+    }
 
-  nextInvalidFields.fn = true;
+    if (form.fd.length < 4 || form.fd.length > 10) {
+      nextInvalidFields.fd = true;
+    }
 
-}
-
-if (form.fd.length < 4 || form.fd.length > 10) {
-
-  nextInvalidFields.fd = true;
-
-}
-
-if (form.fp.length < 6 || form.fp.length > 10) {
-
-  nextInvalidFields.fp = true;
-
-}
+    if (form.fp.length < 6 || form.fp.length > 10) {
+      nextInvalidFields.fp = true;
+    }
 
     if (Object.keys(nextInvalidFields).length > 0) {
       setInvalidFields(nextInvalidFields);
@@ -351,9 +341,8 @@ if (form.fp.length < 6 || form.fp.length > 10) {
 
           <div className="stats-box">
             <div className="stats-title">Ваши чеки</div>
-            <div>✅ Проверено и принято: {myStats.accepted}</div>
-            <div>⏳ На проверке: {myStats.pending}</div>
-            <div>❌ Отклонено: {myStats.rejected}</div>
+            <div>📝 Принято на модерацию: {myStats.moderated}</div>
+            <div>✅ Прошли модерацию: {myStats.passed}</div>
           </div>
 
           <div className="checks-list">
@@ -411,9 +400,8 @@ if (form.fp.length < 6 || form.fp.length > 10) {
               <div>Чеки загружаются, подождите...</div>
             ) : (
               <>
-                <div>✅ Проверено и принято: {myStats.accepted}</div>
-                <div>⏳ На проверке: {myStats.pending}</div>
-                <div>❌ Отклонено: {myStats.rejected}</div>
+                <div>📝 Принято на модерацию: {myStats.moderated}</div>
+                <div>✅ Прошли модерацию: {myStats.passed}</div>
               </>
             )}
           </div>
@@ -422,7 +410,7 @@ if (form.fp.length < 6 || form.fp.length > 10) {
             <a href={partnerAppLink} target="_blank" rel="noreferrer">
               Скачайте
             </a>{' '}
-            приложение OneTwoTrip, чтобы выполнить условия акции, и зарегистрируйтесь в нём с номером телефона, который был указан при регистрации чека. Или авторизуйтесь в нём.
+            приложение партнёра — онлайн-сервиса для путешествий OneTwoTrip, чтобы выполнить условия акции, и зарегистрируйтесь в нём с номером телефона, который был указан при регистрации чека. Или авторизуйтесь в нём.
           </div>
 
           <div className="actions">
@@ -531,7 +519,7 @@ if (form.fp.length < 6 || form.fp.length > 10) {
               inputMode="numeric"
               value={form.fd}
               onChange={(e) => updateField('fd', onlyDigits(e.target.value, 10))}
-              placeholder="Например: 1234512345"
+              placeholder="Например: 12345"
             />
           </label>
 
@@ -542,7 +530,7 @@ if (form.fp.length < 6 || form.fp.length > 10) {
               inputMode="numeric"
               value={form.fp}
               onChange={(e) => updateField('fp', onlyDigits(e.target.value, 10))}
-              placeholder="Например: 1234512345"
+              placeholder="Например: 1234567890"
             />
           </label>
 

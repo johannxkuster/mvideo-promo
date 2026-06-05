@@ -146,34 +146,31 @@ function normalizeDigits(value) {
 function calculateUserStats(submissions, telegramUserId) {
   if (!telegramUserId) {
     return {
-      accepted: 0,
-      pending: 0,
-      rejected: 0,
+      moderated: 0,
+      passed: 0,
     };
   }
+
+  const rejectedStatuses = [
+    'duplicate',
+    'amount_too_low',
+    'date_out_of_range',
+    'format_error',
+    'wrong_store',
+    'fns_invalid',
+  ];
 
   const userSubmissions = submissions.filter((item) => {
     return String(item.telegramUserId || '') === String(telegramUserId || '');
   });
 
   return {
-    accepted: userSubmissions.filter((item) => {
+    moderated: userSubmissions.filter((item) => {
+      return !rejectedStatuses.includes(item.status);
+    }).length,
+
+    passed: userSubmissions.filter((item) => {
       return item.status === 'fns_valid';
-    }).length,
-
-    pending: userSubmissions.filter((item) => {
-      return ['accepted', 'fns_pending', 'manual_review'].includes(item.status);
-    }).length,
-
-    rejected: userSubmissions.filter((item) => {
-      return [
-        'duplicate',
-        'amount_too_low',
-        'date_out_of_range',
-        'format_error',
-        'wrong_store',
-        'fns_invalid',
-      ].includes(item.status);
     }).length,
   };
 }
@@ -279,9 +276,8 @@ fastify.post('/api/my-checks', async (request, reply) => {
       message: 'Не удалось получить Telegram ID пользователя.',
       checks: [],
       stats: {
-        accepted: 0,
-        pending: 0,
-        rejected: 0,
+        moderated: 0,
+        passed: 0,
       },
     });
   }
@@ -308,9 +304,8 @@ fastify.post('/api/my-checks', async (request, reply) => {
         message: result.message || 'Не удалось получить чеки из таблицы.',
         checks: [],
         stats: {
-          accepted: 0,
-          pending: 0,
-          rejected: 0,
+          moderated: 0,
+          passed: 0,
         },
       });
     }
@@ -324,9 +319,8 @@ fastify.post('/api/my-checks', async (request, reply) => {
       message: 'Ошибка при загрузке чеков.',
       checks: [],
       stats: {
-        accepted: 0,
-        pending: 0,
-        rejected: 0,
+        moderated: 0,
+        passed: 0,
       },
     });
   }
